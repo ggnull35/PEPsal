@@ -179,7 +179,7 @@ static void __pep_warning(const char *function, int line, const char *fmt, ...)
 static void usage(char *name)
 {
 	fprintf(stderr,"Usage: %s [-V] [-h] [-v] [-d] [-q QUEUENUM]"
-            " [-a address] [-p port]"
+        " [-a address] [-p port]"
 	    " [-c max_conn] [-l logfile] [-t proxy_lifetime]"
 	    " [-g garbage collector interval]\n", name);
 	exit(EXIT_SUCCESS);
@@ -200,7 +200,7 @@ static int nonblocking_err_p(int err)
     int i;
 
     for (i = 0; i < sizeof(nb_errs); i++) {
-        if (err == nb_errs[i])
+        if ( err == nb_errs[i] )
             return 1;
     }
 
@@ -213,14 +213,14 @@ static int nonblocking_err_p(int err)
  */
 static void toip(char *ret, int address)
 {
-	int a,b,c,d;
+	int a, b, c, d;
 
 	a = (0xFF000000 & address) >> 24;
 	b = (0x00FF0000 & address) >> 16;
 	c = (0x0000FF00 & address) >> 8;
 	d = 0x000000FF & address;
 
-	snprintf(ret,16,"%d.%d.%d.%d",a,b,c,d);
+	snprintf(ret, 16, "%d.%d.%d.%d", a, b, c, d);
 }
 
 static char *conn_stat[] = {
@@ -238,13 +238,17 @@ static void logger_fn(void)
     int i = 1, len;
 
     PEP_DEBUG("Logger invoked!");
+
     SYNTAB_LOCK_READ();
+
     tm = time(NULL);
     ctime_r(&tm, timebuf);
     len = strlen(timebuf);
     timebuf[len - 1] = ']';
     fprintf(logger.file, "=== [%s ===\n", timebuf);
-    syntab_foreach_connection(proxy) {
+
+    syntab_foreach_connection(proxy)
+    {
         toip(ip_src, proxy->src.addr);
         toip(ip_dst, proxy->dst.addr);
         fprintf(logger.file, "[%d] Proxy %s:%d <-> %s:%d\n", i++,
@@ -252,13 +256,14 @@ static void logger_fn(void)
         fprintf(logger.file, "    Status: %s\n", conn_stat[proxy->status]);
         ctime_r(&proxy->syn_time, timebuf);
         fprintf(logger.file, "    SYN received: %s", timebuf);
-        if (proxy->last_rxtx != 0) {
+        if (proxy->last_rxtx != 0)
+        {
             ctime_r(&proxy->last_rxtx, timebuf);
             fprintf(logger.file, "    Last Rx/Tx activity: %s", timebuf);
         }
-
     }
-    if (i == 1) {
+    if (i == 1)
+    {
         fprintf(logger.file, " No connections\n");
     }
 
@@ -279,6 +284,7 @@ static void setup_socket(int fd)
 }
 
 #define ENDPOINT_POLLEVENTS (POLLIN | POLLHUP | POLLERR | POLLNVAL)
+
 static struct pep_proxy *alloc_proxy(void)
 {
     struct pep_proxy *proxy = calloc(1, sizeof(*proxy));
@@ -1055,8 +1061,8 @@ static void *timer_sch_loop(void __attribute__((unused)) *unused)
         gettimeofday(&last_log_evt_time, 0);
         gettimeofday(&last_gc_evt_time, 0);
     }
-    
-    for(;;) { 
+
+    for(;;) {
         gettimeofday(&now, 0);
         if (logger.file && now.tv_sec > last_log_evt_time.tv_sec + PEPLOGGER_INTERVAL) {
             logger_fn();
